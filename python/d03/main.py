@@ -11,7 +11,8 @@ import sys
 PRIORITIES = {
     c: idx
     for idx, c in itertools.chain(
-        enumerate(string.ascii_lowercase, start=1), enumerate(string.ascii_uppercase, start=27)
+        enumerate(string.ascii_lowercase, start=1),
+        enumerate(string.ascii_uppercase, start=27),
     )
 }
 
@@ -34,15 +35,15 @@ def day1(data) -> int:
         common = set(compartments[0]).intersection(set(compartments[1]))
         total += PRIORITIES[common.pop()]
 
-    # todo
-
     return total
 
 
 def day2(data) -> int:
     total = 0
 
-    # todo
+    for idx in range(0, len(data), 3):
+        common = set(data[idx]).intersection(data[idx+1]).intersection(data[idx+2])
+        total += PRIORITIES[common.pop()]
 
     return total
 
@@ -50,5 +51,5 @@ def day2(data) -> int:
 if __name__ == "__main__":
     data = parse(sys.argv[1])
 
-    print(day1(data))
-    # print(day2(data))
+    # print(day1(data))
+    print(day2(data))
