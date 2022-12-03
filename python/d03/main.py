@@ -25,7 +25,7 @@ def parse(fname: str):
     return lines
 
 
-def day1(data) -> int:
+def part1(data) -> int:
     total = 0
 
     for rucksack in data:
@@ -38,7 +38,7 @@ def day1(data) -> int:
     return total
 
 
-def day2(data) -> int:
+def part2(data) -> int:
     total = 0
 
     for idx in range(0, len(data), 3):
@@ -51,5 +51,5 @@ def day2(data) -> int:
 if __name__ == "__main__":
     data = parse(sys.argv[1])
 
-    # print(day1(data))
-    print(day2(data))
+    # print(part1(data))
+    print(part2(data))

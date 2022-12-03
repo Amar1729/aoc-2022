@@ -14,7 +14,7 @@ def parse(fname: str):
     return lines
 
 
-def day1(data) -> int:
+def part1(data) -> int:
     score = 0
 
     for line in data:
@@ -74,7 +74,7 @@ def day1(data) -> int:
     return score
 
 
-def day2(data) -> int:
+def part2(data) -> int:
     score = 0
 
     for line in data:
@@ -137,5 +137,5 @@ def day2(data) -> int:
 if __name__ == "__main__":
     data = parse(sys.argv[1])
 
-    # print(day1(data))
-    print(day2(data))
+    # print(part1(data))
+    print(part2(data))
