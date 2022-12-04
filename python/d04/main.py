@@ -38,7 +38,18 @@ def part1(data) -> int:
 def part2(data) -> int:
     total = 0
 
-    # todo
+    for line in data:
+        parts = line.split(",")
+
+        # my solution in p1 was a bit gross cause i was going fast, but
+        # this is a bit cleaner
+        def some_range(p):
+            begin, end = map(int, p.split("-"))
+            return set(range(begin, end+1))
+
+        e1_range, e2_range = map(some_range, parts)
+
+        total += len(e1_range.intersection(e2_range)) > 0
 
     return total
 
@@ -46,5 +57,5 @@ def part2(data) -> int:
 if __name__ == "__main__":
     data = parse(sys.argv[1])
 
-    print(part1(data))
-    # print(part2(data))
+    # print(part1(data))
+    print(part2(data))
