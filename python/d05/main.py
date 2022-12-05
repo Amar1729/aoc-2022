@@ -40,6 +40,11 @@ class Board:
         for _ in range(amount):
             self.crates[dst].append(self.crates[src].pop())
 
+    def move2(self, src, dst, amount):
+        to_move = self.crates[src][-amount:]
+        self.crates[src] = self.crates[src][:-amount]
+        self.crates[dst].extend(to_move)
+
     def top(self):
         return "".join([
             self.crates[i][-1]
@@ -47,9 +52,7 @@ class Board:
         ])
 
 
-def part1(data) -> int:
-    total = 0
-
+def part1(data, p2=False) -> int:
     board = Board(data)
 
     moves = []
@@ -62,19 +65,20 @@ def part1(data) -> int:
         dst = match.group("dst")
         amount = match.group("amount")
 
-        board.move(int(src), int(dst), int(amount))
+        if p2:
+            board.move2(int(src), int(dst), int(amount))
+        else:
+            board.move(int(src), int(dst), int(amount))
 
     return board.top()
 
 
 def part2(data) -> int:
-    total = 0
-
-    return total
+    return part1(data, True)
 
 
 if __name__ == "__main__":
     data = parse(sys.argv[1])
 
-    print(part1(data))
-    # print(part2(data))
+    # print(part1(data))
+    print(part2(data))
