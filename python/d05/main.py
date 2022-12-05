@@ -16,6 +16,7 @@ def parse(fname: str):
 
 
 # assumes only up to 9 rows
+# (because we use hard-coded indexes to get the crates in each column)
 class Board:
     def __init__(self, content):
         # init will stop at the idx of the row line
@@ -52,14 +53,16 @@ class Board:
         ])
 
 
-def part1(data, p2=False) -> int:
+def part1(data, p2=False) -> str:
     board = Board(data)
 
     moves = []
     for line in data[board.row_idx + 1:]:
         moves.append(line)
 
-        match = re.search(r"move (?P<amount>\d+) from (?P<src>\d+) to (?P<dst>\d+)", line)
+        match = re.search(
+            r"move (?P<amount>\d+) from (?P<src>\d+) to (?P<dst>\d+)", line
+        )
 
         src = match.group("src")
         dst = match.group("dst")
@@ -73,7 +76,7 @@ def part1(data, p2=False) -> int:
     return board.top()
 
 
-def part2(data) -> int:
+def part2(data) -> str:
     return part1(data, True)
 
 
