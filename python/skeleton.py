@@ -1,8 +1,10 @@
 #! /usr/bin/env python3
 
+# commonly-used built-in imports. not all of these are necessarily used each day.
 import collections
 import functools
 import itertools
+import re
 import sys
 
 
