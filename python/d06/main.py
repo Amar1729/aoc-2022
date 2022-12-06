@@ -16,10 +16,10 @@ def parse(fname: str):
     return lines
 
 
-def part1(data) -> int:
-    buf = list(data[0][:3])
-    for idx, c in enumerate(data[0][3:], start=4):
-        if len(set(buf + [c])) == 4:
+def part1(data, length=4) -> int:
+    buf = list(data[0][:length-1])
+    for idx, c in enumerate(data[0][length-1:], start=length):
+        if len(set(buf + [c])) == length:
             return idx
         else:
             buf.pop(0)
@@ -29,15 +29,11 @@ def part1(data) -> int:
 
 
 def part2(data) -> int:
-    total = 0
-
-    # todo
-
-    return total
+    return part1(data, 14)
 
 
 if __name__ == "__main__":
     data = parse(sys.argv[1])
 
-    print(part1(data))
-    # print(part2(data))
+    # print(part1(data))
+    print(part2(data))
