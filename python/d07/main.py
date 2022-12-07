@@ -1,10 +1,5 @@
 #! /usr/bin/env python3
 
-# commonly-used built-in imports. not all of these are necessarily used each day.
-import collections
-import functools
-import itertools
-import re
 import sys
 
 
@@ -19,7 +14,6 @@ def parse(fname: str):
 class Node:
     def __init__(self, name, size: int = 0) -> None:
         self.name = name
-        # self.parent = parent  # ?
         self.children = []
         self._size = size
 
@@ -82,10 +76,7 @@ def parse_lines(data):
                     target = next(filter(lambda n: n.name == d, cur.children))
                     cur = target
 
-                if x == "dir":
-                    cur.children.append(Node(fname, 0))
-                else:
-                    cur.children.append(Node(fname, int(x)))
+                cur.children.append(Node(fname, 0 if x == "dir" else int(x)))
 
             case _:
                 raise Exception(line)
