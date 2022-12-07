@@ -38,6 +38,16 @@ class Node:
         for c in self.children:
             yield from c.nodes_lt(limit)
 
+    def nodes_gt(self, limit):
+        if not self.children:
+            return
+
+        if self.size() >= limit:
+            yield self
+
+        for c in self.children:
+            yield from c.nodes_gt(limit)
+
     def __str__(self, depth=0):
         return "".join([
             "  " * depth,
@@ -45,6 +55,9 @@ class Node:
             "\n" if self.children else "",
             "\n".join([c.__str__(depth+2) for c in self.children])
         ])
+
+    def __repr__(self):
+        return self.name
 
 
 def parse_lines(data):
@@ -87,15 +100,18 @@ def part1(data, limit=100_000) -> int:
 
 
 def part2(data) -> int:
-    total = 0
+    max_size = 70_000_000
+    required = 30_000_000
 
-    # todo
+    root = parse_lines(data)
+    need_to_free = required - (max_size - root.size())
 
-    return total
+    ns = sorted(root.nodes_gt(need_to_free), key=lambda n: n.size())
+    return ns[0].size()
 
 
 if __name__ == "__main__":
     data = parse(sys.argv[1])
 
-    print(part1(data))
-    # print(part2(data))
+    # print(part1(data))
+    print(part2(data))
