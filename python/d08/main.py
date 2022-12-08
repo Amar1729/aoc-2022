@@ -3,9 +3,17 @@
 # commonly-used built-in imports. not all of these are necessarily used each day.
 import collections
 import functools
-import itertools
-import re
 import sys
+
+from typing import Dict, Tuple, Set, Union
+
+
+DIRECTIONS = [
+    0 + 1j,
+    0 - 1j,
+    1 + 0j,
+    -1 + 0j,
+]
 
 
 COLORS = {
@@ -42,7 +50,20 @@ def pgrid(g, visible):
     ]))
 
 
-def part1(data, part2=False):
+def part1(data, part2=False) -> Union[int, Tuple[Dict, Set]]:
+    """
+    post-challenge note:
+        i did this function this way because i was trying to come up with a
+        more efficient way than going through and checking each point. this
+        approach goes from the edges of the grid and iterates inward for each
+        of the four directions, breaking once it encounters a tree of max
+        height 9.
+
+        however, i'm not convinced that the naive solution - just checking
+        each tree in all four directions outward, and breaking when necessary -
+        would have been too slow, given that's roughly what problem 2 ended
+        up asking for.
+    """
     visible = set()
 
     grid = {
@@ -118,13 +139,30 @@ def part1(data, part2=False):
 
 
 def part2(data) -> int:
-    total = 0
+    ret = part1(data, True)
+    assert not isinstance(ret, int)
+    grid, visible = ret
 
-    return total
+    scenic_score = 0
+
+    for p in visible:
+        scenic = collections.defaultdict(int)
+        for d in DIRECTIONS:
+            curr_p = p + d
+            while curr_p in grid:
+                # print(p, curr_p, scenic[d], d)
+                scenic[d] += 1
+                if grid[p] <= grid[curr_p]:
+                    break
+                curr_p += d
+
+        scenic_score = max(scenic_score, functools.reduce(lambda x, y: x * y, scenic.values(), 1))
+
+    return scenic_score
 
 
 if __name__ == "__main__":
     data = parse(sys.argv[1])
 
-    print(part1(data))
-    # print(part2(data))
+    # print(part1(data))
+    print(part2(data))
