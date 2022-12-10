@@ -42,16 +42,43 @@ def part1(data) -> int:
     return sum(k * v for k, v in wanted.items())
 
 
-def part2(data) -> int:
-    total = 0
+def part2(data):
+    x = 1
+    row = []
 
-    # todo
+    # gross
+    def render():
+        print("".join(row))
+        for _ in range(len(row)):
+            row.pop(0)
 
-    return total
+    # gross
+    def draw():
+        if len(row) == 40:
+            render()
+
+        # protip use " " instead of ".", makes reading the output slightly easier
+        c = "#" if abs(x - len(row)) <= 1 else " "
+        row.append(c)
+
+    for line in data:
+
+        match line.split(" "):
+            case ["noop"]:
+                draw()
+            case ["addx", d]:
+                draw()
+                draw()
+
+                x += int(d)
+
+    # print out last row if there's anything left
+    if row:
+        render()
 
 
 if __name__ == "__main__":
     data = parse(sys.argv[1])
 
-    print(part1(data))
-    print(part2(data))
+    # print(part1(data))
+    part2(data)
