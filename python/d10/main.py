@@ -12,7 +12,8 @@ def parse(fname: str):
 
 
 def part1(data) -> int:
-    wanted = {c: None for c in range(20, 221, 40)}
+    # now that we know what register represents from pt2, we know it can't be 0
+    wanted = {c: 0 for c in range(20, 221, 40)}
 
     x = 1
     cycle = 1
@@ -26,13 +27,8 @@ def part1(data) -> int:
                 prev = int(d)
                 x += int(d)
 
-        # print(line, cycle, x)
-
-        if cycle > 180:
-            print(line, cycle, x, prev)
-
         for k in sorted(wanted.keys()):
-            if wanted[k] is None:
+            if wanted[k] == 0:
                 if cycle == k:
                     wanted[k] = x
                 elif cycle == k + 1:
@@ -80,5 +76,5 @@ def part2(data):
 if __name__ == "__main__":
     data = parse(sys.argv[1])
 
-    # print(part1(data))
+    print(part1(data))
     part2(data)
