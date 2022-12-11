@@ -4,6 +4,7 @@
 import re
 import sys
 
+from math import prod
 from typing import Callable
 from dataclasses import dataclass
 
@@ -20,6 +21,9 @@ class Monkey:
     target_false: int
 
     inspection_count: int
+
+    # part2: time to get schwifty with number theory
+    divisor: int = 0
 
 
 def parse_monke(lines: list[str]) -> Monkey:
@@ -51,7 +55,6 @@ def parse_monke(lines: list[str]) -> Monkey:
     assert m is not None  # for type-checking
     target_false = int(m.group("monkey"))
 
-    print()
     return Monkey(
         index,
         items,
@@ -60,6 +63,7 @@ def parse_monke(lines: list[str]) -> Monkey:
         target_true,
         target_false,
         0,
+        div,
     )
 
 
@@ -71,8 +75,16 @@ def parse(fname: str) -> list[Monkey]:
     return list(map(parse_monke, chunked(lines, 6)))
 
 
-def part1(monkeys) -> int:
-    for _ in range(20):
+def part1(monkeys, rounds=20) -> int:
+    # optimization!
+    # notice that all the divisors are prime numbers
+
+    # so what we do is mult all the divisors from the monkeys
+    # and use that as a supermodulo for each operation done to an item
+    # that way, the item values won't ever go past this product
+    supermodulo = prod(m.divisor for m in monkeys)
+
+    for _ in range(rounds):
         # do a round
 
         for m in monkeys:
@@ -84,8 +96,16 @@ def part1(monkeys) -> int:
                 # monkey inspects
                 item = m.op(item)
 
-                # i'm relieved
-                item = item // 3
+                if rounds == 20:
+                    # part1
+                    # i'm relieved
+                    item = item // 3
+                else:
+                    # part2
+                    # i'm not relieved
+                    pass
+
+                item %= supermodulo
 
                 # monkey tests and throws
                 if m.test(item):
@@ -100,16 +120,12 @@ def part1(monkeys) -> int:
     return sm[-2].inspection_count * sm[-1].inspection_count
 
 
-def part2(data) -> int:
-    total = 0
-
-    # todo
-
-    return total
+def part2(monkeys) -> int:
+    return part1(monkeys, 10_000)
 
 
 if __name__ == "__main__":
     data = parse(sys.argv[1])
 
     print(part1(data))
-    print(part2(data))
+    # print(part2(data))
