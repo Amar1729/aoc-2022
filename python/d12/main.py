@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-# commonly-used built-in imports. not all of these are necessarily used each day.
 import string
 import sys
 from enum import Enum
@@ -80,7 +79,7 @@ def print_path(g, final_p, path):
     )
 
 
-def bfs(start, g, visited) -> list[Point]:
+def bfs(start, g, visited, ascending=True) -> list[Point]:
     max_x = len(g[0])
     max_y = len(g)
 
@@ -92,23 +91,38 @@ def bfs(start, g, visited) -> list[Point]:
 
     # starting queue
     q: list[Tuple[Point, Point]] = [(start, start + p) for p in DIRECTIONS]
+    target = ("E",) if ascending else ("a", "S")
 
     while q:
         parent, newp = q.pop(0)
 
         if newp not in visited and bounds(newp):
-            if ord(g[newp.y][newp.x]) - ord(g[parent.y][parent.x]) in range(-26, 2):
+            if (
+                # default search from part1
+                ascending
+                and any(
+                    [
+                        ord(g[newp.y][newp.x]) - ord(g[parent.y][parent.x]) in range(-26, 2),
+                        g[parent.y][parent.x] == "S" and g[newp.y][newp.x] in ("a", "b"),
+                        g[newp.y][newp.x] == "E" and g[parent.y][parent.x] in ("y", "z"),
+                    ]
+                )
+            ) or (
+                # descending search for part2
+                not ascending
+                and any(
+                    [
+                        ord(g[newp.y][newp.x]) - ord(g[parent.y][parent.x]) in range(-1, 27),
+                        g[parent.y][parent.x] == "E" and g[newp.y][newp.x] in ("y", "z"),
+                    ]
+                )
+            ):
                 q.extend([(newp, newp + p) for p in DIRECTIONS])
                 visited[newp] = visited[parent] + [parent]
 
-            elif g[parent.y][parent.x] == "S" and g[newp.y][newp.x] in ("a", "b"):
-                q.extend([(newp, newp + p) for p in DIRECTIONS])
-                visited[newp] = visited[parent] + [parent]
-
-            elif g[newp.y][newp.x] == "E" and g[parent.y][parent.x] in ("y", "z"):
-                # done!
-                visited[newp] = visited[parent] + [parent]
-                return visited[newp]
+                if g[newp.y][newp.x] in target:
+                    # done!
+                    return visited[newp]
 
     # if we get here, we haven't found a valid path. debug!
     for item in sorted(visited.items(), key=lambda i: len(i[1])):
@@ -117,29 +131,25 @@ def bfs(start, g, visited) -> list[Point]:
     return []
 
 
-def part1(data) -> int:
+def part1(data, p2=False) -> int:
     start = None
 
     for y, row in enumerate(data):
         for x, c in enumerate(row):
-            if c == "S":
+            if (not p2 and c == "S") or (p2 and c == "E"):
                 start = Point(x, y)
 
     visited = {start: []}
-    path = bfs(start, data, visited)
+    path = bfs(start, data, visited, not p2)
     return len(path)
 
 
 def part2(data) -> int:
-    total = 0
-
-    # todo
-
-    return total
+    return part1(data, True)
 
 
 if __name__ == "__main__":
     data = parse(sys.argv[1])
 
-    print(part1(data))
-    # print(part2(data))
+    # print(part1(data))
+    print(part2(data))
