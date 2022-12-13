@@ -76,15 +76,23 @@ def part1(data) -> int:
 
 
 def part2(data) -> int:
-    total = 0
+    # ... am i actually going to bubble sort???
+    packets = [literal_eval(data[0])]
 
-    # todo
+    for packet in map(lambda d: literal_eval(d), data[1:] + ["[[2]]"] + ["[[6]]"]):
+        for idx in range(len(packets)):
+            if compare_parts(packet, packets[idx]):
+                packets.insert(idx, packet)
+                break
+        else:
+            # runs if loop wasn't broken
+            packets.append(packet)
 
-    return total
+    return (1 + packets.index([[2]])) * (1 + packets.index([[6]]))
 
 
 if __name__ == "__main__":
     data = parse(sys.argv[1])
 
-    print(part1(data))
-    # print(part2(data))
+    # print(part1(data))
+    print(part2(data))
