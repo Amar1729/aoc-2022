@@ -13,12 +13,10 @@ def parse(fname: str):
     return lines
 
 
-def resting_point(s):
+def resting_point(s, max_y: int, p2=False):
     # gets resting point of falling sand, or none
     curr = (500, 0)
     assert curr not in s
-
-    max_y = max(p[1] for p in s)
 
     while True:
         if (curr[0], curr[1] + 1) not in s:
@@ -31,11 +29,16 @@ def resting_point(s):
             # reached resting point
             return curr
 
+        if p2 and curr[1] == max_y - 1:
+            # this is the greatest possible for part2
+            return curr
+
         if curr[1] >= max_y:
+            assert not p2
             return None
 
 
-def part1(data) -> int:
+def part1(data, p2=False) -> int:
     points = set()
 
     for line in data:
@@ -57,26 +60,30 @@ def part1(data) -> int:
     # simulate falling sand
     # sand falls from 500, 0
     sand = set()
+    max_y = max(p[1] for p in points)
+    if p2:
+        max_y += 2
+
     while True:
-        p = resting_point(points.union(sand))
+        p = resting_point(points.union(sand), max_y, p2)
         if p is None:
             break
         else:
             sand.add(p)
 
+        # last particle of sand to fall
+        if p2 and p == (500, 0):
+            return len(sand)
+
     return len(sand)
 
 
 def part2(data) -> int:
-    total = 0
-
-    # todo
-
-    return total
+    return part1(data, True)
 
 
 if __name__ == "__main__":
     data = parse(sys.argv[1])
 
-    print(part1(data))
+    # print(part1(data))
     print(part2(data))
