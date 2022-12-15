@@ -3,6 +3,7 @@
 import collections
 import sys
 
+# see aoc_tools in parent dir (copied here during challenges, but untracked)
 from aoc_tools import Point
 
 
