@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 
+import collections
 import sys
 
 from aoc_tools import Point
@@ -23,8 +24,14 @@ def manhattan_range(s: Point, b: Point):
 
 
 class DisjointSet:
-    def __init__(self, i: int, f: int):
-        self.ranges = [(i, f)]
+    def __init__(self):
+        self.ranges = []
+
+    def __add__(self, tup):
+        self.update(*tup)
+        d = DisjointSet()
+        d.ranges = self.ranges
+        return d
 
     def update(self, i: int, f: int):
         # somewhat gross impl, sorry
@@ -32,6 +39,16 @@ class DisjointSet:
         while True:
             if c >= len(self.ranges):
                 break
+
+            # special case: join adjacent ranges?
+            if i == self.ranges[c][1] + 1:
+                p = self.ranges.pop(c)
+                self.update(p[0], f)
+                return
+            elif f == self.ranges[c][0] - 1:
+                p = self.ranges.pop(c)
+                self.update(i, p[1])
+                return
 
             if i > self.ranges[c][1]:
                 # try next-highest pair
@@ -120,11 +137,56 @@ def part1(data) -> int:
 
 
 def part2(data) -> int:
-    total = 0
+    sensors = set()
+    beacons = set()
 
-    # todo
+    # set of blocked points
+    blocked = collections.defaultdict(DisjointSet)
 
-    return total
+    # sample data
+    # m = 20
+    m = 4_000_000
+
+    for line in data:
+        s_sensor, s_beacon = line.split(": ")
+        s_coord = s_sensor.split(", y=")
+        s_x = int(s_coord[0].split("x=")[1])
+        s_y = int(s_coord[1])
+
+        sensor = Point(s_x, s_y)
+
+        b_coord = s_beacon.split(", y=")
+        b_x = int(b_coord[0].split("x=")[1])
+
+        beacon = Point(b_x, int(b_coord[1]))
+
+        sensors.add(sensor)
+        beacons.add(beacon)
+
+        # will this help with efficiency during initial calc?
+        for dev in [sensor, beacon]:
+            if dev.x in range(0, m + 1) and dev.y in range(0, m + 1):
+                blocked[dev.y] += (dev.x, dev.x)
+
+        print(sensor, beacon)
+
+        for xi, xf, y in manhattan_range(sensor, beacon):
+            # look only at the points our problem wants?
+
+            if xi > m or xf < 0 or y not in range(0, m + 1):
+                continue
+
+            xi = max(0, xi)
+            xf = min(xf, m)
+
+            blocked[y] += (xi, xf)
+
+    for y, ds in blocked.items():
+        if len(ds.ranges) > 1:
+            return y + (ds.ranges[0][1] + 1) * m
+
+    # none found
+    raise Exception
 
 
 if __name__ == "__main__":
