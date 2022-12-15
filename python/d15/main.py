@@ -55,43 +55,32 @@ class DisjointSet:
 
     def update(self, i: int, f: int):
         # somewhat gross impl, sorry
-        c = 0
-        while True:
-            if c >= len(self.ranges):
-                break
+        # maybe this should use a Dict[start: int, stop: int] ?
 
-            # special case: join adjacent ranges?
-            if i == self.ranges[c][1] + 1:
-                p = self.ranges.pop(c)
-                self.update(p[0], f)
-                return
-            elif f == self.ranges[c][0] - 1:
-                p = self.ranges.pop(c)
-                self.update(i, p[1])
-                return
+        for c in range(len(self.ranges)):
 
-            if i > self.ranges[c][1]:
-                # try next-highest pair
-                c += 1
-            elif i == self.ranges[c][1]:
-                p = self.ranges.pop(c)
-                self.update(p[0], f)
+            ri, rf = self.ranges[c]
+
+            if i > rf + 1:
+                # try next-highest
+                continue
+            elif ri <= i <= rf + 1:
+                self.ranges.pop(c)
+                self.update(ri, max(rf, f))
                 return
-            elif self.ranges[c][0] < i < self.ranges[c][1]:
-                p = self.ranges.pop(c)
-                self.update(p[0], max(f, p[1]))
+            elif ri - 1 <= f <= rf:
+                self.ranges.pop(c)
+                self.update(min(ri, i), rf)
                 return
-            elif self.ranges[c][0] <= f <= self.ranges[c][1]:
-                p = self.ranges.pop(c)
-                self.update(min(i, p[0]), max(f, p[1]))
-                return
-            elif f < self.ranges[c][0]:
-                self.ranges.insert(c, (i, f))
-                return
-            elif i <= self.ranges[c][0] and f >= self.ranges[c][1]:
+            elif i <= ri and f >= rf:
                 self.ranges.pop(c)
                 self.update(i, f)
+                return
+            elif f < ri - 1:
+                self.ranges.insert(c, (i, f))
+                return
             else:
+                # there are no other possibilities, raise exception
                 raise Exception
 
         self.ranges.append((i, f))
@@ -109,9 +98,6 @@ class DisjointSet:
 
 
 def part1(data) -> int:
-    sensors = set()
-    beacons = set()
-
     # set of blocked points
     blocked = collections.defaultdict(DisjointSet)
 
@@ -129,11 +115,12 @@ def part1(data) -> int:
 
     # screw around a little bit
     actual_points = set()
+    beacons = set(data.values())
 
     for i, f in blocked[target].ranges:
         for x in range(i, f + 1):
             p = Point(x, target)
-            if p not in sensors and p not in beacons:
+            if p not in data and p not in beacons:
                 actual_points.add(p)
     return len(actual_points)
 
