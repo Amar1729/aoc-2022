@@ -14,6 +14,26 @@ def parse(fname: str):
     return lines
 
 
+def parse_devices(data):
+    d = {}
+    for line in data:
+        s_sensor, s_beacon = line.split(": ")
+        s_coord = s_sensor.split(", y=")
+        s_x = int(s_coord[0].split("x=")[1])
+        s_y = int(s_coord[1])
+
+        sensor = Point(s_x, s_y)
+
+        b_coord = s_beacon.split(", y=")
+        b_x = int(b_coord[0].split("x=")[1])
+
+        beacon = Point(b_x, int(b_coord[1]))
+
+        d[sensor] = beacon
+
+    return d
+
+
 def manhattan_range(s: Point, b: Point):
     distance = abs(s.x - b.x) + abs(s.y - b.y)
 
@@ -93,37 +113,19 @@ def part1(data) -> int:
     beacons = set()
 
     # set of blocked points
-    blocked = {}
+    blocked = collections.defaultdict(DisjointSet)
 
     # sample data
     # target = 10
     target = 2_000_000
 
-    for line in data:
-        s_sensor, s_beacon = line.split(": ")
-        s_coord = s_sensor.split(", y=")
-        s_x = int(s_coord[0].split("x=")[1])
-        s_y = int(s_coord[1])
-
-        sensor = Point(s_x, s_y)
-
-        b_coord = s_beacon.split(", y=")
-        b_x = int(b_coord[0].split("x=")[1])
-
-        beacon = Point(b_x, int(b_coord[1]))
-
-        sensors.add(sensor)
-        beacons.add(beacon)
-
+    for sensor, beacon in data.items():
         for xi, xf, y in manhattan_range(sensor, beacon):
             # look only at the points our problem wants?
             if y != target:
                 continue
 
-            if y not in blocked:
-                blocked[y] = DisjointSet(xi, xf)
-            else:
-                blocked[y].update(xi, xf)
+            blocked[y] += (xi, xf)
 
     # screw around a little bit
     actual_points = set()
@@ -137,9 +139,6 @@ def part1(data) -> int:
 
 
 def part2(data) -> int:
-    sensors = set()
-    beacons = set()
-
     # set of blocked points
     blocked = collections.defaultdict(DisjointSet)
 
@@ -147,28 +146,11 @@ def part2(data) -> int:
     # m = 20
     m = 4_000_000
 
-    for line in data:
-        s_sensor, s_beacon = line.split(": ")
-        s_coord = s_sensor.split(", y=")
-        s_x = int(s_coord[0].split("x=")[1])
-        s_y = int(s_coord[1])
-
-        sensor = Point(s_x, s_y)
-
-        b_coord = s_beacon.split(", y=")
-        b_x = int(b_coord[0].split("x=")[1])
-
-        beacon = Point(b_x, int(b_coord[1]))
-
-        sensors.add(sensor)
-        beacons.add(beacon)
-
+    for sensor, beacon in data.items():
         # will this help with efficiency during initial calc?
-        for dev in [sensor, beacon]:
+        for dev in (sensor, beacon):
             if dev.x in range(0, m + 1) and dev.y in range(0, m + 1):
                 blocked[dev.y] += (dev.x, dev.x)
-
-        print(sensor, beacon)
 
         for xi, xf, y in manhattan_range(sensor, beacon):
             # look only at the points our problem wants?
@@ -191,6 +173,7 @@ def part2(data) -> int:
 
 if __name__ == "__main__":
     data = parse(sys.argv[1])
+    devices = parse_devices(data)
 
-    print(part1(data))
-    print(part2(data))
+    # print(part1(devices))
+    print(part2(devices))
