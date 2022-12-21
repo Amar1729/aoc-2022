@@ -2,6 +2,8 @@
 
 import sys
 
+import z3
+
 
 def parse(fname: str):
     """Read from data file. Returns problem specific formatted data."""
@@ -45,15 +47,63 @@ def part1(data) -> int:
 
 
 def part2(data) -> int:
-    total = 0
+    # lets do this with z3 cause i'm trying to learn to use it
 
-    # todo
+    # NOTE! you want Optimize() here, NOT Solver()
+    # does Solver() just return the first difference it finds, not best?
+    # i don't actually know difference, but was getting wrong answer w/ Solver
+    solver = z3.Optimize()
 
-    return total
+    monkeys = {}
+
+    for monkey in data:
+        name, op = monkey.split(": ")
+
+        if name == "humn":
+            continue
+        elif name == "root":
+            m1, _, m2 = op.split(" ")
+            m1 = monkeys.setdefault(m1, z3.Int(m1))
+            m2 = monkeys.setdefault(m2, z3.Int(m2))
+            solver.add(m1 == m2)
+            continue
+
+        match (op.split(" ")):
+            case [n]:
+                m = monkeys.setdefault(name, z3.Int(name))
+                solver.add(m == n)
+            case [m1, "+", m2]:
+                m = monkeys.setdefault(name, z3.Int(name))
+                m1 = monkeys.setdefault(m1, z3.Int(m1))
+                m2 = monkeys.setdefault(m2, z3.Int(m2))
+                solver.add(m == (m1 + m2))
+            case [m1, "-", m2]:
+                m = monkeys.setdefault(name, z3.Int(name))
+                m1 = monkeys.setdefault(m1, z3.Int(m1))
+                m2 = monkeys.setdefault(m2, z3.Int(m2))
+                solver.add(m == (m1 - m2))
+            case [m1, "*", m2]:
+                m = monkeys.setdefault(name, z3.Int(name))
+                m1 = monkeys.setdefault(m1, z3.Int(m1))
+                m2 = monkeys.setdefault(m2, z3.Int(m2))
+                solver.add(m == (m1 * m2))
+            case [m1, "/", m2]:
+                m = monkeys.setdefault(name, z3.Int(name))
+                m1 = monkeys.setdefault(m1, z3.Int(m1))
+                m2 = monkeys.setdefault(m2, z3.Int(m2))
+                solver.add(m2 != 0)
+                solver.add(m == (m1 / m2))
+
+    if solver.check() != z3.sat:
+        raise Exception
+
+    humn = monkeys["humn"]
+    model = solver.model()
+    return model[humn].as_long()
 
 
 if __name__ == "__main__":
     data = parse(sys.argv[1])
 
-    print(part1(data))
+    # print(part1(data))
     print(part2(data))
