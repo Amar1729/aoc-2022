@@ -66,38 +66,41 @@ def turn(current: D, d: str) -> D:
     raise Exception
 
 
-def part1(lines, directions) -> int:
-    mapping = {}
-
+def find(p: Point, d: D, lines) -> Point:
     max_x = max(len(line) for line in lines)
     max_y = len(lines)
 
+    curr = p
+    while True:
+        curr += d.value
+
+        # loop around
+        if curr.x < 0:
+            curr = Point(max_x - 1, curr.y)
+        elif curr.x >= max_x:
+            curr = Point(0, curr.y)
+        elif curr.y < 0:
+            curr = Point(curr.x, max_y - 1)
+        elif curr.y >= max_y:
+            curr = Point(curr.x, 0)
+
+        if lines[curr.y][curr.x] == "#":
+            return p
+        elif lines[curr.y][curr.x] == ".":
+            return curr
+        elif lines[curr.y][curr.x] == " ":
+            pass
+
+
+def part1(lines, directions) -> int:
+    mapping = {}
+
     # pad array???
+    max_x = max(len(line) for line in lines)
+    max_y = len(lines)
     for idx in range(max_y):
         while len(lines[idx]) < max_x:
             lines[idx] += " "
-
-    def find(p: Point, d: D) -> Point:
-        curr = p
-        while True:
-            curr += d.value
-
-            # loop around
-            if curr.x < 0:
-                curr = Point(max_x - 1, curr.y)
-            elif curr.x >= max_x:
-                curr = Point(0, curr.y)
-            elif curr.y < 0:
-                curr = Point(curr.x, max_y - 1)
-            elif curr.y >= max_y:
-                curr = Point(curr.x, 0)
-
-            if lines[curr.y][curr.x] == "#":
-                return p
-            elif lines[curr.y][curr.x] == ".":
-                return curr
-            elif lines[curr.y][curr.x] == " ":
-                pass
 
     curr = []
     for y, row in enumerate(lines):
@@ -108,7 +111,7 @@ def part1(lines, directions) -> int:
                     curr.append((Point(x, y), D.R))
                 for d in list(D):
                     p = Point(x, y)
-                    mapping[(p, d)] = find(p, d)
+                    mapping[(p, d)] = find(p, d, lines)
 
     for gd in directions:
         if gd in ["L", "R"]:
