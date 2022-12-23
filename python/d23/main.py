@@ -39,7 +39,7 @@ def parse(fname: str):
 
 
 def print_grid(grid, dbg=True) -> int:
-    # pprint(grid)
+    """Print grid for vis, or return number of empty spaces in bounding box"""
     min_x = min([p.x for p in grid])
     max_x = max([p.x for p in grid])
     min_y = min([p.y for p in grid])
@@ -78,8 +78,7 @@ def part1(data, p2=False) -> int:
         D.E: (D.E, D.NE, D.SE),
     }.items())
 
-    # first half: make decisions
-    step = 1
+    step = 0
     while True:
         # print("==== " * 4 + f"STEP {step}" + " ====" * 4)
         # print_grid(grid)
@@ -89,6 +88,7 @@ def part1(data, p2=False) -> int:
         # hold the new position and all old elf positions
         previous = collections.defaultdict(list)
 
+        # first half: make decisions
         for p in grid:
             check = lambda d: p + d.value in grid
             cond = lambda i: all(not check(_d) for _d in directions[i][1])
@@ -112,12 +112,15 @@ def part1(data, p2=False) -> int:
                 # fallback: don't move
                 previous[p].append(p)
 
+        step += 1
+
         if all(k == v[0] for k, v in previous.items()):
             if p2:
                 return step
             else:
                 break
 
+        # second half: everybody moves
         for new_p, old_ps in previous.items():
             if len(old_ps) == 1:
                 # print("succesfully moved", new_p, new_p - old_ps[0])
@@ -132,12 +135,9 @@ def part1(data, p2=False) -> int:
 
         assert len(new_points) == len(grid)
 
-        # rotate directions
+        # finally: rotate directions
         directions.append(directions.pop(0))
-        # everybody moves
         grid = new_points
-
-        step += 1
 
     # need number of empty ground tiles
     return print_grid(grid, False)
