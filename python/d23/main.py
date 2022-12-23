@@ -61,9 +61,7 @@ def print_grid(grid, dbg=True) -> int:
     return empty
 
 
-def part1(data) -> int:
-    steps = 10
-
+def part1(data, p2=False) -> int:
     grid = set([
         Point(x, y)
         for y, row in enumerate(data)
@@ -81,7 +79,8 @@ def part1(data) -> int:
     }.items())
 
     # first half: make decisions
-    for step in range(steps):
+    step = 1
+    while True:
         # print("==== " * 4 + f"STEP {step}" + " ====" * 4)
         # print_grid(grid)
 
@@ -114,8 +113,10 @@ def part1(data) -> int:
                 previous[p].append(p)
 
         if all(k == v[0] for k, v in previous.items()):
-            print("DONE")
-            break
+            if p2:
+                return step
+            else:
+                break
 
         for new_p, old_ps in previous.items():
             if len(old_ps) == 1:
@@ -136,20 +137,18 @@ def part1(data) -> int:
         # everybody moves
         grid = new_points
 
+        step += 1
+
     # need number of empty ground tiles
     return print_grid(grid, False)
 
 
 def part2(data) -> int:
-    total = 0
-
-    # todo
-
-    return total
+    return part1(data, True)
 
 
 if __name__ == "__main__":
     data = parse(sys.argv[1])
 
-    print(part1(data))
-    # print(part2(data))
+    # print(part1(data))
+    print(part2(data))
